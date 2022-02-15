@@ -17,37 +17,180 @@ states <- read_csv("data/states.csv")
 ```
 
 ### Exercise 1
+The variables for the dennys data and laquinta data are address, city, latitude, longitude, state, and zip
+```{r dimensions-dennys-data}
 
-blah blah blah... test that token works again
+nrow(dennys)
+ncol(dennys)
 
-Remove this text, and add your answer for Exercise 1 here.
-Add code chunks as needed.
-Don't forget to label your code chunk.
-Do not use spaces in code chunk labels.
+ls(dennys)
 
+```
 ### Exercise 2
 
-Remove this text, and add your answer for Exercise 2 here.
-Add code chunks as needed.
-Don't forget to label your code chunk.
-Do not use spaces in code chunk labels.
+```{r dimensions-laquinta-data}
+
+nrow(laquinta)
+ncol(laquinta)
+
+ls(laquinta)
+
+```
+
 
 ### Exercise 3
-
-...
+For Dennys, no. For laquinta, yes. Canada, Mexico, China, New Zealand, Honduras, Turkey, UAE, Chile, and Colombia
 
 ### Exercise 4
 
-...
+Filter the state data for values of na or other
 
 ### Exercise 5
 
-...
+```{r dennys-locations-outside-US}
+dennys %>%
+  filter(!(state %in% state.abb))
+```
+
 
 ### Exercise 6
 
-...
+```{r dennys_add_country_variable}
+
+dennys %>%
+  mutate(country = "United States")
+
+```
+
+### Exercise 7
+
+```{r laquinta-locations-outside-us}
+
+laquinta %>%
+  filter(!(state %in% state.abb))
+
+```
+### Exercise 8
+
+```{r laquinta_add_country_variable}
+
+laquinta %>%
+  mutate(country = case_when(
+    state %in% state.abb     ~ "United States",
+    state %in% c("ON", "BC") ~ "Canada",
+    state == "ANT"           ~ "Colombia",
+    state %in% c("AG" , "QR" , "CH" , "NL" , "VE" , "PU" , "SL" ) ~ "Mexico",
+    state == "FM" ~"Honduras"
+  )) %>% 
+  filter(country == "United States")
+
+```
+
+### Exercise 9
+ Texas has the most Dennys and Delaware has the least Dennys. Texas has the most laquintas and Maine has the least. This is not surprising. Texas is huge and has lots of people while Maine and Delaware are small with relatively low populations.
+```{r most_dennys_states}
+dennys %>% 
+  count(state) %>% 
+  arrange(desc(n))
+
+dennys %>% 
+  count(state) %>% 
+  arrange(n)
+```
+ 
+```{r most_laquinta_states}
+
+laquinta %>%
+  mutate(country = case_when(
+    state %in% state.abb     ~ "United States",
+    state %in% c("ON", "BC") ~ "Canada",
+    state == "ANT"           ~ "Colombia",
+    state %in% c("AG" , "QR" , "CH" , "NL" , "VE" , "PU" , "SL" ) ~ "Mexico",
+    state == "FM" ~"Honduras"
+  )) %>% 
+  filter(country == "United States") %>% 
+    count(state) %>% 
+  arrange(desc(n))
+
+
+laquinta %>%
+  mutate(country = case_when(
+    state %in% state.abb     ~ "United States",
+    state %in% c("ON", "BC") ~ "Canada",
+    state == "ANT"           ~ "Colombia",
+    state %in% c("AG" , "QR" , "CH" , "NL" , "VE" , "PU" , "SL" ) ~ "Mexico",
+    state == "FM" ~"Honduras"
+  )) %>% 
+  filter(country == "United States") %>% 
+    count(state) %>% 
+  arrange(n)
+
+
+```
+
+```{r number_per_State}
+dennys %>%
+  count(state) %>%
+  inner_join(states, by = c("state" = "abbreviation"))
+
+laquinta %>%
+  count(state) %>%
+  inner_join(states, by = c("state" = "abbreviation"))
+```
 
  
+###Exercise 10
+ 
+```{r}
+
+dennys <- dennys %>%
+  mutate(establishment = "Denny's")
+laquinta <- laquinta %>%
+  mutate(establishment = "La Quinta")
+
+dn_lq <- bind_rows(dennys, laquinta)
+
+
+```
+ 
+ 
+```{r}
+
+ggplot(dn_lq, mapping = aes(x = longitude, y = latitude, color = establishment)) +
+  geom_point()
+
+```
+ 
+ 
+ 
+###Exercise 11
+His joke does not seem to be particularly accurate in NC.
+
+```{r}
+
+dn_lq %>% 
+  filter(state == "NC") %>% 
+  ggplot(dn_lq, mapping = aes(x = longitude, y = latitude, color = establishment)) +
+  geom_point(alpha = .6)+
+  labs(
+    title = "Location of Dennys and Laquintas in North Carolina"
+  )
+
+```
+
+###Exercise 11
+His joke is pretty accurate in Texas
+```{r}
+dn_lq %>% 
+  filter(state == "TX") %>% 
+  ggplot(dn_lq, mapping = aes(x = longitude, y = latitude, color = establishment)) +
+  geom_point(alpha = .5)+
+  labs(
+    title = "Location of Dennys and Laquintas in Texax"
+  )
+
+```
+
+
 Add exercise headings as needed.
 
